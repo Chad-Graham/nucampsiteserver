@@ -174,7 +174,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
         Campsite.findById(req.params.campsiteId)
             .then(campsite => {
                 if (campsite && campsite.comments.id(req.params.commentId)) {
-                    if ((campsite.comments.id(req.params.commentId).author._id).equals(req.user._id)) {
+                    if (req.user._id.equals(campsite.comments.id(req.params.commentId).author._id)) {
                         if (req.body.rating) {
                             campsite.comments.id(req.params.commentId).rating = req.body.rating;
                         }
@@ -189,8 +189,8 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
                             })
                             .catch(err => next(err));
                     } else {
-                        err = new Error(`You are not the Author!`);
-                        err.status = 403;
+                        err = new Error(`You are not the author of this comment!`);
+                        err.statusCode = 403;
                         return next(err);
                     }
                 } else if (!campsite) {
@@ -209,7 +209,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
         Campsite.findById(req.params.campsiteId)
             .then(campsite => {
                 if (campsite && campsite.comments.id(req.params.commentId)) {
-                    if ((campsite.commends.id(req.params.commentId).author._id).equals(req.user._id)) {
+                    if (req.user._id.equals(campsite.comments.id(req.params.commentId).author._id)) {
                         campsite.comments.id(req.params.commentId).remove();
                         campsite.save()
                             .then(campsite => {
@@ -219,7 +219,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
                             })
                             .catch(err => next(err));
                     } else {
-                        err = new Error(`You are not the Author!`);
+                        err = new Error(`You are not authorized to delete this comment!`);
                         err.status = 403;
                         return next(err);
                     }
@@ -234,6 +234,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
                 }
             })
             .catch(err => next(err));
-    });
+    })
+
 
 module.exports = campsiteRouter;
